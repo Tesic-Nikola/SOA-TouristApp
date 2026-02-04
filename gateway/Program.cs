@@ -7,12 +7,12 @@ builder.Services.AddHttpClient();
 
 builder.Services.AddGrpcClient<UserService.UserServiceClient>(options =>
 {
-    options.Address = new Uri("http://localhost:8081");
+    options.Address = new Uri("https://localhost:7081");
 });
 
 builder.Services.AddGrpcClient<TourService.TourServiceClient>(options =>
 {
-    options.Address = new Uri("http://localhost:8084");
+    options.Address = new Uri("https://localhost:7084");
 });
 
 builder.Services.AddCors(options =>
