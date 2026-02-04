@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using tour_service.Services;
+using tour_service.GrpcServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,8 +38,10 @@ builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
-// Register services
-builder.Services.AddSingleton<TourService>();
+// Add gRPC
+builder.Services.AddGrpc();
+
+builder.Services.AddSingleton<tour_service.Services.TourService>();
 builder.Services.AddSingleton<PositionService>();
 builder.Services.AddSingleton<PurchaseService>();
 builder.Services.AddSingleton<TourExecutionService>();
@@ -54,5 +57,8 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+// Map gRPC service
+app.MapGrpcService<TourGrpcService>();
 
 app.Run();

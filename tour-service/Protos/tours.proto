@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package tours;
+
+// Tour service definition
+service TourService {
+  rpc GetTour (GetTourRequest) returns (TourResponse);
+  rpc GetAllTours (GetAllToursRequest) returns (GetAllToursResponse);
+}
+
+// Request/Response messages
+message GetTourRequest {
+  string tour_id = 1;
+}
+
+message GetAllToursRequest {
+}
+
+message TourResponse {
+  string id = 1;
+  string author_id = 2;
+  string name = 3;
+  string description = 4;
+  string difficulty = 5;
+  repeated string tags = 6;
+  repeated Waypoint waypoints = 7;
+}
+
+message Waypoint {
+  string id = 1;
+  double latitude = 2;
+  double longitude = 3;
+  string name = 4;
+  string description = 5;
+  string image_path = 6;
+}
+
+message GetAllToursResponse {
+  repeated TourResponse tours = 1;
+}

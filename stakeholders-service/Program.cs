@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using stakeholders_service.Services;
+using stakeholders_service.GrpcServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,8 +38,11 @@ builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
+// Add gRPC
+builder.Services.AddGrpc();
+
 // Register UserService
-builder.Services.AddSingleton<UserService>();
+builder.Services.AddSingleton<stakeholders_service.Services.UserService>();
 
 var app = builder.Build();
 
@@ -51,5 +55,8 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+// Map gRPC service
+app.MapGrpcService<UserGrpcService>();
 
 app.Run();
