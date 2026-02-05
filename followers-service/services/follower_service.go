@@ -21,13 +21,32 @@ func (s *FollowerService) FollowUser(followerID, followedID string) error {
 	defer session.Close(ctx)
 
 	_, err := session.ExecuteWrite(ctx, func(tx neo4j.ManagedTransaction) (interface{}, error) {
+		// Check if relationship already exists
+		checkQuery := `
+			MATCH (follower:User {id: $followerId})-[r:FOLLOWS]->(followed:User {id: $followedId})
+			RETURN r
+		`
+		result, err := tx.Run(ctx, checkQuery, map[string]interface{}{
+			"followerId": followerID,
+			"followedId": followedID,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		if result.Next(ctx) {
+			return nil, nil // Already following, do nothing
+		}
+
+		// Create relationship
 		query := `
 			MERGE (follower:User {id: $followerId})
 			MERGE (followed:User {id: $followedId})
-			MERGE (follower)-[r:FOLLOWS {createdAt: datetime()}]->(followed)
+			MERGE (follower)-[r:FOLLOWS]->(followed)
+			ON CREATE SET r.createdAt = datetime()
 			RETURN r
 		`
-		_, err := tx.Run(ctx, query, map[string]interface{}{
+		_, err = tx.Run(ctx, query, map[string]interface{}{
 			"followerId": followerID,
 			"followedId": followedID,
 		})

@@ -6,6 +6,7 @@ import (
 	"blog-service/services"
 	"context"
 	"log"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/v2/mongo"
@@ -13,7 +14,11 @@ import (
 )
 
 func main() {
-	client, err := mongo.Connect(options.Client().ApplyURI("mongodb://localhost:27017"))
+	mongoURI := os.Getenv("MONGO_URI")
+	if mongoURI == "" {
+		mongoURI = "mongodb://localhost:27017"
+	}
+	client, err := mongo.Connect(options.Client().ApplyURI(mongoURI))
 	if err != nil {
 		log.Fatal(err)
 	}

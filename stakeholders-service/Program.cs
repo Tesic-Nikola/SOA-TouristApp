@@ -38,6 +38,12 @@ builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(8081, o => o.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1AndHttp2); // REST
+    options.ListenAnyIP(9081, o => o.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2); // gRPC only
+});
+
 // Add gRPC
 builder.Services.AddGrpc();
 

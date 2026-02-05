@@ -6,15 +6,19 @@ import (
 	"followers-service/middleware"
 	"followers-service/services"
 	"log"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
 )
 
 func main() {
-	// Connect to Neo4j
+	neo4jURI := os.Getenv("NEO4J_URI")
+	if neo4jURI == "" {
+		neo4jURI = "bolt://localhost:7687"
+	}
 	driver, err := neo4j.NewDriverWithContext(
-		"bolt://localhost:7687",
+		neo4jURI,
 		neo4j.BasicAuth("neo4j", "password", ""),
 	)
 	if err != nil {

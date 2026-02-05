@@ -7,12 +7,20 @@ builder.Services.AddHttpClient();
 
 builder.Services.AddGrpcClient<UserService.UserServiceClient>(options =>
 {
-    options.Address = new Uri("https://localhost:7081");
+    options.Address = new Uri("http://stakeholders-service:9081");
+})
+.ConfigureChannel(options =>
+{
+    options.UnsafeUseInsecureChannelCallCredentials = true;
 });
 
 builder.Services.AddGrpcClient<TourService.TourServiceClient>(options =>
 {
-    options.Address = new Uri("https://localhost:7084");
+    options.Address = new Uri("http://tour-service:9084");
+})
+.ConfigureChannel(options =>
+{
+    options.UnsafeUseInsecureChannelCallCredentials = true;
 });
 
 builder.Services.AddCors(options =>
@@ -36,7 +44,7 @@ app.MapWhen(ctx => ctx.Request.Path.StartsWithSegments("/api/users"), appBuilder
     appBuilder.Run(async context =>
     {
         var client = httpClientFactory.CreateClient();
-        var url = $"http://localhost:8081{context.Request.Path}{context.Request.QueryString}";
+        var url = $"http://stakeholders-service:8081{context.Request.Path}{context.Request.QueryString}";
 
         var requestMessage = new HttpRequestMessage(new HttpMethod(context.Request.Method), url);
 
@@ -65,7 +73,7 @@ app.MapWhen(ctx => ctx.Request.Path.StartsWithSegments("/api/blogs"), appBuilder
     appBuilder.Run(async context =>
     {
         var client = httpClientFactory.CreateClient();
-        var url = $"http://localhost:8082{context.Request.Path}{context.Request.QueryString}";
+        var url = $"http://blog-service:8082{context.Request.Path}{context.Request.QueryString}";
 
         var requestMessage = new HttpRequestMessage(new HttpMethod(context.Request.Method), url);
 
@@ -94,7 +102,7 @@ app.MapWhen(ctx => ctx.Request.Path.StartsWithSegments("/api/followers"), appBui
     appBuilder.Run(async context =>
     {
         var client = httpClientFactory.CreateClient();
-        var url = $"http://localhost:8083{context.Request.Path}{context.Request.QueryString}";
+        var url = $"http://followers-service:8083{context.Request.Path}{context.Request.QueryString}";
 
         var requestMessage = new HttpRequestMessage(new HttpMethod(context.Request.Method), url);
 
@@ -123,7 +131,7 @@ app.MapWhen(ctx => ctx.Request.Path.StartsWithSegments("/api/tours"), appBuilder
     appBuilder.Run(async context =>
     {
         var client = httpClientFactory.CreateClient();
-        var url = $"http://localhost:8084{context.Request.Path}{context.Request.QueryString}";
+        var url = $"http://tour-service:8084{context.Request.Path}{context.Request.QueryString}";
 
         var requestMessage = new HttpRequestMessage(new HttpMethod(context.Request.Method), url);
 
