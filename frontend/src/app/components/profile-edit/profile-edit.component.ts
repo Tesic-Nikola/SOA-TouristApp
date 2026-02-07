@@ -33,23 +33,30 @@ export class ProfileEditComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const userId = this.route.snapshot.paramMap.get('id');
-    const currentUser = this.authService.getCurrentUser();
-    
-    if (!currentUser || userId !== currentUser.id) {
-      this.router.navigate(['/']);
-      return;
-    }
-
-    this.user = currentUser;
-    this.profileForm.patchValue({
-      firstName: this.user.firstName || '',
-      lastName: this.user.lastName || '',
-      bio: this.user.bio || '',
-      motto: this.user.motto || '',
-      profileImagePath: this.user.profileImagePath || ''
-    });
+  const userId = this.route.snapshot.paramMap.get('id');
+  const currentUser = this.authService.getCurrentUser();
+  
+  if (!currentUser || userId !== currentUser.id) {
+    this.router.navigate(['/']);
+    return;
   }
+
+  this.authService.getUser(userId!).subscribe({
+    next: (user) => {
+      this.user = user;
+      this.profileForm.patchValue({
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        bio: user.bio || '',
+        motto: user.motto || '',
+        profileImagePath: user.profileImagePath || ''
+      });
+    },
+    error: (err) => {
+      this.router.navigate(['/']);
+    }
+  });
+}
 
   onSubmit(): void {
     if (!this.user) return;

@@ -11,12 +11,49 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private http: HttpClient) {
-    const token = this.getToken();
-    if (token) {
-      this.loadCurrentUser();
+  // In auth.service.ts
+constructor(private http: HttpClient) {
+  const token = this.getToken();
+  if (token) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const userId = payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+      const username = payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
+      const roleStr = payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+      
+      // Parse role - it might be "Tourist", "Guide", or "Administrator"
+      let role = 0;
+      if (roleStr === 'Guide' || roleStr === '1') role = 1;
+      else if (roleStr === 'Administrator' || roleStr === '2') role = 2;
+      
+      // Immediately set user from token - THIS IS KEY
+      const tokenUser: User = {
+        id: userId,
+        username: username,
+        email: '', // Will be filled by API call
+        role: role
+      };
+      
+      // Set this BEFORE the HTTP call
+      this.currentUserSubject.next(tokenUser);
+      
+      // Now load full details in background
+      this.getUser(userId).subscribe({
+        next: fullUser => {
+          this.currentUserSubject.next(fullUser);
+        },
+        error: (err) => {
+          if (err.status === 401) {
+            this.logout();
+          }
+          // Otherwise keep the token-based user
+        }
+      });
+    } catch (error) {
+      this.logout();
     }
   }
+}
 
   register(request: RegisterRequest): Observable<User> {
     return this.http.post<User>(`${environment.apiUrl}/users/register`, request);
@@ -88,33 +125,5 @@ export class AuthService {
           }
         })
       );
-  }
-
-  private loadCurrentUser(): void {
-    const token = this.getToken();
-    if (!token) return;
-
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const userId = payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
-      
-      if (!userId) {
-        this.logout();
-        return;
-      }
-      
-      this.getUser(userId).subscribe({
-        next: user => {
-          this.currentUserSubject.next(user);
-        },
-        error: (err) => {
-          if (err.status === 401) {
-            this.logout();
-          }
-        }
-      });
-    } catch (error) {
-      this.logout();
-    }
   }
 }
