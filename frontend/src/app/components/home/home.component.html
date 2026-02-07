@@ -1,0 +1,17 @@
+<div class="container mt-5">
+  <div class="text-center">
+    <h1>Welcome to Explorer</h1>
+    <p class="lead" *ngIf="!currentUser">Discover and explore amazing tours around the world</p>
+    <p class="lead" *ngIf="currentUser">Welcome back, {{ currentUser.username }}!</p>
+    
+    <div class="mt-4" *ngIf="!currentUser">
+      <a routerLink="/login" class="btn btn-primary btn-lg me-2">Login</a>
+      <a routerLink="/register" class="btn btn-outline-primary btn-lg">Register</a>
+    </div>
+
+    <div class="mt-4" *ngIf="currentUser">
+      <a routerLink="/tours" class="btn btn-primary btn-lg me-2">Browse Tours</a>
+      <a routerLink="/blogs" class="btn btn-outline-primary btn-lg">Read Blogs</a>
+    </div>
+  </div>
+</div>

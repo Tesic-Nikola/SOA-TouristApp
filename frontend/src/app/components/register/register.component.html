@@ -1,0 +1,89 @@
+<div class="container" style="max-width: 500px; margin-top: 100px;">
+  <div class="card">
+    <div class="card-body">
+      <h2 class="card-title text-center mb-4">Register</h2>
+      
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+        <div class="mb-3">
+          <label for="username" class="form-label">Username</label>
+          <input 
+            type="text" 
+            class="form-control" 
+            id="username" 
+            formControlName="username"
+            [class.is-invalid]="registerForm.get('username')?.invalid && registerForm.get('username')?.touched">
+          <div class="invalid-feedback">
+            Username must be at least 3 characters
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input 
+            type="email" 
+            class="form-control" 
+            id="email" 
+            formControlName="email"
+            [class.is-invalid]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+          <div class="invalid-feedback">
+            Please enter a valid email
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input 
+            type="password" 
+            class="form-control" 
+            id="password" 
+            formControlName="password"
+            [class.is-invalid]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
+          <div class="invalid-feedback">
+            Password must be at least 6 characters
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Role</label>
+          <div>
+            <div class="form-check form-check-inline">
+              <input 
+                class="form-check-input" 
+                type="radio" 
+                id="tourist" 
+                [value]="0"
+                formControlName="role">
+              <label class="form-check-label" for="tourist">
+                Tourist
+              </label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input 
+                class="form-check-input" 
+                type="radio" 
+                id="guide" 
+                [value]="1"
+                formControlName="role">
+              <label class="form-check-label" for="guide">
+                Guide
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-danger" *ngIf="error">
+          {{ error }}
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100" [disabled]="loading">
+          <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+          {{ loading ? 'Registering...' : 'Register' }}
+        </button>
+      </form>
+
+      <div class="text-center mt-3">
+        <p>Already have an account? <a routerLink="/login">Login here</a></p>
+      </div>
+    </div>
+  </div>
+</div>
