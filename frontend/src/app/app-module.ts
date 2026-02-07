@@ -12,6 +12,9 @@ import { NavbarComponent } from './components/navbar/navbar.component';
 import { HomeComponent } from './components/home/home.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { ProfileEditComponent } from './components/profile-edit/profile-edit.component';
+import { BlogsComponent } from './components/blogs/blogs.component';
+import { BlogDetailComponent } from './components/blog-detail/blog-detail.component';
+import { BlogCreateComponent } from './components/blog-create/blog-create.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +24,10 @@ import { ProfileEditComponent } from './components/profile-edit/profile-edit.com
     NavbarComponent,
     HomeComponent,
     ProfileComponent,
-    ProfileEditComponent
+    ProfileEditComponent,
+    BlogsComponent,
+    BlogDetailComponent,
+    BlogCreateComponent
   ],
   imports: [
     BrowserModule,

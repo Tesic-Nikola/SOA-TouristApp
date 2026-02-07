@@ -20,7 +20,11 @@ func NewBlogService(db *mongo.Database) *BlogService {
 }
 
 func (s *BlogService) CreateBlog(blog *models.Blog) error {
+	if blog.ID.IsZero() {
+		blog.ID = bson.NewObjectID()
+	}
 	blog.CreatedAt = time.Now()
+
 	_, err := s.collection.InsertOne(context.Background(), blog)
 	return err
 }

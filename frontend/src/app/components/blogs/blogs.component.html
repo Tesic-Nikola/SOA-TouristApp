@@ -1,0 +1,43 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Blogs</h2>
+    <button *ngIf="currentUser" class="btn btn-primary" (click)="createBlog()">
+      <i class="bi bi-plus-circle"></i> Create Blog
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!loading && blogs.length === 0" class="alert alert-info">
+    No blogs available yet. Be the first to create one!
+  </div>
+
+  <div class="row">
+    <div class="col-md-6 col-lg-4 mb-4" *ngFor="let blog of blogs">
+      <div class="card h-100" style="cursor: pointer;" (click)="viewBlog(blog.id)">
+        <div class="card-body">
+          <h5 class="card-title">{{ blog.title }}</h5>
+          <p class="card-text text-muted small">
+            {{ formatDate(blog.createdAt) }}
+          </p>
+          <p class="card-text">
+            {{ blog.description.length > 150 ? blog.description.substring(0, 150) + '...' : blog.description }}
+          </p>
+        </div>
+        <div class="card-footer bg-transparent" *ngIf="blog.images && blog.images.length > 0">
+          <small class="text-muted">
+            <i class="bi bi-image"></i> {{ blog.images.length }} image(s)
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

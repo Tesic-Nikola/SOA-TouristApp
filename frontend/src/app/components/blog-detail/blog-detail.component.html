@@ -1,0 +1,39 @@
+<div class="container mt-4">
+  <button class="btn btn-secondary mb-3" (click)="goBack()">
+    <i class="bi bi-arrow-left"></i> Back to Blogs
+  </button>
+
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <div *ngIf="blog && !loading" class="card">
+    <div class="card-body">
+      <h1 class="card-title">{{ blog.title }}</h1>
+      <p class="text-muted">
+        <i class="bi bi-calendar"></i> {{ formatDate(blog.createdAt) }}
+      </p>
+      <hr>
+      <div class="blog-content">
+        {{ blog.description }}
+      </div>
+
+      <div *ngIf="blog.images && blog.images.length > 0" class="mt-4">
+        <h5>Images</h5>
+        <div class="row g-3">
+          <div class="col-md-6" *ngFor="let image of blog.images">
+            <div class="image-container">
+              <img [src]="image" class="img-fluid rounded" alt="Blog image">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
