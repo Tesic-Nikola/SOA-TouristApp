@@ -22,17 +22,40 @@
 
   <div class="row">
     <div class="col-md-6 col-lg-4 mb-4" *ngFor="let blog of blogs">
-      <div class="card h-100" style="cursor: pointer;" (click)="viewBlog(blog.id)">
+      <div class="card h-100">
         <div class="card-body">
-          <h5 class="card-title">{{ blog.title }}</h5>
-          <p class="card-text text-muted small">
-            {{ formatDate(blog.createdAt) }}
-          </p>
-          <p class="card-text">
-            {{ blog.description.length > 150 ? blog.description.substring(0, 150) + '...' : blog.description }}
-          </p>
+          <!-- Author info - clickable with hover effect -->
+          <div class="author-link d-inline-flex align-items-center mb-3" *ngIf="authors.get(blog.authorId) as author" 
+               (click)="viewProfile(author.id, $event)">
+            <div *ngIf="!author.profileImagePath" 
+                 class="rounded-circle d-flex align-items-center justify-content-center bg-secondary me-2"
+                 style="width: 40px; height: 40px; min-width: 40px;">
+              <i class="bi bi-person-fill text-white" style="font-size: 20px;"></i>
+            </div>
+            <img 
+              *ngIf="author.profileImagePath"
+              [src]="author.profileImagePath" 
+              alt="Author" 
+              class="rounded-circle me-2"
+              style="width: 40px; height: 40px; object-fit: cover;">
+            <div>
+              <strong style="font-size: 1.1rem;">{{ author.username }}</strong>
+            </div>
+          </div>
+
+          <!-- Blog content - clickable -->
+          <div style="cursor: pointer;" (click)="viewBlog(blog.id)">
+            <h5 class="card-title">{{ blog.title }}</h5>
+            <p class="card-text text-muted small">
+              {{ formatDate(blog.createdAt) }}
+            </p>
+            <p class="card-text">
+              {{ blog.description.length > 150 ? blog.description.substring(0, 150) + '...' : blog.description }}
+            </p>
+          </div>
         </div>
-        <div class="card-footer bg-transparent" *ngIf="blog.images && blog.images.length > 0">
+        <div class="card-footer bg-transparent" *ngIf="blog.images && blog.images.length > 0" 
+             style="cursor: pointer;" (click)="viewBlog(blog.id)">
           <small class="text-muted">
             <i class="bi bi-image"></i> {{ blog.images.length }} image(s)
           </small>

@@ -13,6 +13,7 @@ import { User } from '../../models/user.model';
 })
 export class BlogsComponent implements OnInit {
   blogs: Blog[] = [];
+  authors: Map<string, User> = new Map();
   loading = true;
   error = '';
   currentUser: User | null = null;
@@ -40,6 +41,19 @@ export class BlogsComponent implements OnInit {
     this.blogService.getAllBlogs().subscribe({
       next: (blogs) => {
         this.blogs = blogs;
+        
+        // Load author info for each blog
+        blogs.forEach(blog => {
+          if (!this.authors.has(blog.authorId)) {
+            this.authService.getUser(blog.authorId).subscribe({
+              next: (user) => {
+                this.authors.set(blog.authorId, user);
+                this.cdr.detectChanges();
+              }
+            });
+          }
+        });
+        
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -53,6 +67,11 @@ export class BlogsComponent implements OnInit {
 
   viewBlog(blogId: string): void {
     this.router.navigate(['/blogs', blogId]);
+  }
+
+  viewProfile(authorId: string, event: Event): void {
+    event.stopPropagation(); // Prevent blog card click
+    this.router.navigate(['/profile', authorId]);
   }
 
   createBlog(): void {

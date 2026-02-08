@@ -9,6 +9,11 @@
       <li class="nav-item" *ngIf="currentUser">
         <a class="nav-link" routerLink="/blogs" routerLinkActive="active">Blogs</a>
       </li>
+      <li class="nav-item" *ngIf="currentUser">
+        <a class="nav-link" routerLink="/recommendations" routerLinkActive="active">
+          <i class="bi bi-people"></i> Discover
+        </a>
+      </li>
       <li class="nav-item" *ngIf="currentUser?.role === 1">
         <a class="nav-link" routerLink="/my-tours" routerLinkActive="active">My Tours</a>
       </li>

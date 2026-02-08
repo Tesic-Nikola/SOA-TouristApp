@@ -15,23 +15,68 @@
 
   <div *ngIf="blog && !loading" class="card">
     <div class="card-body">
+      <!-- Author info - clickable with hover effect -->
+      <div class="author-link d-inline-flex align-items-center mb-3" *ngIf="author" 
+           (click)="viewAuthorProfile()">
+        <div *ngIf="!author.profileImagePath" 
+             class="rounded-circle d-flex align-items-center justify-content-center bg-secondary me-2"
+             style="width: 50px; height: 50px; min-width: 50px;">
+          <i class="bi bi-person-fill text-white" style="font-size: 25px;"></i>
+        </div>
+        <img 
+          *ngIf="author.profileImagePath"
+          [src]="author.profileImagePath" 
+          alt="Author" 
+          class="rounded-circle me-2"
+          style="width: 50px; height: 50px; object-fit: cover;">
+        <div>
+          <strong style="font-size: 1.2rem;">{{ author.username }}</strong>
+          <div class="text-muted small">Click to view profile</div>
+        </div>
+      </div>
+
       <h1 class="card-title">{{ blog.title }}</h1>
       <p class="text-muted">
         <i class="bi bi-calendar"></i> {{ formatDate(blog.createdAt) }}
       </p>
       <hr>
-      <div class="blog-content">
-        {{ blog.description }}
-      </div>
 
-      <div *ngIf="blog.images && blog.images.length > 0" class="mt-4">
-        <h5>Images</h5>
-        <div class="row g-3">
-          <div class="col-md-6" *ngFor="let image of blog.images">
-            <div class="image-container">
-              <img [src]="image" class="img-fluid rounded" alt="Blog image">
+      <!-- Show full blog if following or own blog -->
+      <div *ngIf="canViewFullBlog()">
+        <div class="blog-content">
+          {{ blog.description }}
+        </div>
+
+        <div *ngIf="blog.images && blog.images.length > 0" class="mt-4">
+          <h5>Images</h5>
+          <div class="row g-3">
+            <div class="col-md-6" *ngFor="let image of blog.images">
+              <div class="image-container">
+                <img [src]="image" class="img-fluid rounded" alt="Blog image">
+              </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Show lock prompt if not following -->
+      <div *ngIf="!canViewFullBlog()">
+        <div class="alert alert-warning d-flex align-items-center">
+          <i class="bi bi-lock-fill me-2" style="font-size: 2rem;"></i>
+          <div class="flex-grow-1">
+            <h5 class="mb-1">Content Locked</h5>
+            <p class="mb-0">Follow <strong>{{ author?.username }}</strong> to read this blog post.</p>
+          </div>
+        </div>
+
+        <div class="d-flex gap-2 mt-3">
+          <button class="btn btn-primary" (click)="followAuthor()" [disabled]="followLoading">
+            <span *ngIf="followLoading" class="spinner-border spinner-border-sm me-2"></span>
+            <i class="bi bi-person-plus"></i> Follow {{ author?.username }}
+          </button>
+          <button class="btn btn-outline-secondary" (click)="viewAuthorProfile()">
+            <i class="bi bi-person"></i> View Profile
+          </button>
         </div>
       </div>
     </div>

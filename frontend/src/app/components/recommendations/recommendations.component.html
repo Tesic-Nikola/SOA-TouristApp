@@ -1,0 +1,52 @@
+<div class="container mt-4">
+  <h2 class="mb-4">People You May Know</h2>
+
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!loading && recommendations.length === 0" class="alert alert-info">
+    No recommendations available. Start following people to get personalized recommendations!
+  </div>
+
+  <div class="row">
+    <div class="col-md-6 col-lg-4 mb-4" *ngFor="let rec of recommendations">
+      <div class="card h-100" *ngIf="users.get(rec.userId) as user">
+        <div class="card-body text-center">
+          <div *ngIf="!user.profileImagePath" 
+               class="rounded-circle mb-3 d-flex align-items-center justify-content-center bg-secondary mx-auto"
+               style="width: 100px; height: 100px;">
+            <i class="bi bi-person-fill text-white" style="font-size: 50px;"></i>
+          </div>
+          <img 
+            *ngIf="user.profileImagePath"
+            [src]="user.profileImagePath" 
+            alt="Profile" 
+            class="rounded-circle mb-3 mx-auto d-block"
+            style="width: 100px; height: 100px; object-fit: cover;">
+
+          <h5 class="card-title">{{ user.username }}</h5>
+          <p class="text-muted">{{ getRoleDisplay(user.role) }}</p>
+          
+          <p class="small text-muted" *ngIf="user.bio">
+            {{ user.bio.length > 100 ? user.bio.substring(0, 100) + '...' : user.bio }}
+          </p>
+
+          <div class="text-muted small mb-3">
+            <i class="bi bi-people-fill"></i> {{ rec.score }} mutual connection(s)
+          </div>
+
+          <button class="btn btn-primary btn-sm w-100" (click)="viewProfile(user.id)">
+            View Profile
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

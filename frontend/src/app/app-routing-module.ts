@@ -9,6 +9,7 @@ import { ProfileEditComponent } from './components/profile-edit/profile-edit.com
 import { BlogsComponent } from './components/blogs/blogs.component';
 import { BlogDetailComponent } from './components/blog-detail/blog-detail.component';
 import { BlogCreateComponent } from './components/blog-create/blog-create.component';
+import { RecommendationsComponent } from './components/recommendations/recommendations.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -18,7 +19,8 @@ const routes: Routes = [
   { path: 'profile/:id/edit', component: ProfileEditComponent, canActivate: [authGuard] },
   { path: 'blogs', component: BlogsComponent },
   { path: 'blogs/create', component: BlogCreateComponent, canActivate: [authGuard] },
-  { path: 'blogs/:id', component: BlogDetailComponent }
+  { path: 'blogs/:id', component: BlogDetailComponent },
+  { path: 'recommendations', component: RecommendationsComponent, canActivate: [authGuard] }
 ];
 
 @NgModule({

@@ -15,6 +15,7 @@ import { ProfileEditComponent } from './components/profile-edit/profile-edit.com
 import { BlogsComponent } from './components/blogs/blogs.component';
 import { BlogDetailComponent } from './components/blog-detail/blog-detail.component';
 import { BlogCreateComponent } from './components/blog-create/blog-create.component';
+import { RecommendationsComponent } from './components/recommendations/recommendations.component';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import { BlogCreateComponent } from './components/blog-create/blog-create.compon
     ProfileEditComponent,
     BlogsComponent,
     BlogDetailComponent,
-    BlogCreateComponent
+    BlogCreateComponent,
+    RecommendationsComponent
   ],
   imports: [
     BrowserModule,
