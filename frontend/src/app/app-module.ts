@@ -16,6 +16,7 @@ import { BlogsComponent } from './components/blogs/blogs.component';
 import { BlogDetailComponent } from './components/blog-detail/blog-detail.component';
 import { BlogCreateComponent } from './components/blog-create/blog-create.component';
 import { RecommendationsComponent } from './components/recommendations/recommendations.component';
+import { PositionSimulatorComponent } from './components/position-simulator/position-simulator.component';
 
 @NgModule({
   declarations: [
@@ -29,7 +30,8 @@ import { RecommendationsComponent } from './components/recommendations/recommend
     BlogsComponent,
     BlogDetailComponent,
     BlogCreateComponent,
-    RecommendationsComponent
+    RecommendationsComponent,
+    PositionSimulatorComponent
   ],
   imports: [
     BrowserModule,
