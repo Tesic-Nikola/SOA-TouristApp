@@ -95,7 +95,7 @@
             </div>
 
             <div class="d-flex gap-2">
-              <button type="submit" class="btn btn-primary" [disabled]="loading || tourForm.invalid">
+              <button type="submit" class="btn btn-primary" [disabled]="loading || tourForm.invalid || waypoints.length < 2">
                 <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
                 {{ loading ? 'Saving...' : (isEditMode ? 'Update' : 'Create') }}
               </button>
@@ -237,9 +237,6 @@
                 <div class="waypoint-actions">
                   <button class="btn btn-sm btn-outline-primary" (click)="editWaypoint(i)">
                     <i class="bi bi-pencil"></i>
-                  </button>
-                  <button class="btn btn-sm btn-outline-danger" (click)="deleteWaypointAtIndex(i)">
-                    <i class="bi bi-trash"></i>
                   </button>
                 </div>
               </div>

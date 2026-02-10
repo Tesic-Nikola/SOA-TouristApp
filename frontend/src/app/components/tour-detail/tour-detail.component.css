@@ -27,7 +27,6 @@
   gap: 20px;
   padding: 20px 0;
   border-top: 1px solid #dee2e6;
-  border-bottom: 1px solid #dee2e6;
   margin: 20px 0;
 }
 
@@ -99,4 +98,12 @@
   font-size: 0.9rem;
   color: #6c757d;
   margin-bottom: 10px;
+}
+
+.waypoint-item {
+  border-left: 3px solid #007bff;
+}
+
+.waypoint-item:not(:last-child) {
+  border-left: 3px solid #007bff;
 }

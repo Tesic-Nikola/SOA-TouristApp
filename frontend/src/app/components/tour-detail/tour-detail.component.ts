@@ -130,11 +130,9 @@ export class TourDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     // Draw route if all waypoints visible
+    // Fit bounds to show all waypoints
     if (this.canSeeAllWaypoints() && this.tour.waypoints.length > 1) {
       const latlngs = this.tour.waypoints.map(w => [w.latitude, w.longitude] as [number, number]);
-      L.polyline(latlngs, { color: '#007bff', weight: 3 }).addTo(this.map);
-      
-      // Fit bounds to show all waypoints
       this.map.fitBounds(latlngs);
     }
   }

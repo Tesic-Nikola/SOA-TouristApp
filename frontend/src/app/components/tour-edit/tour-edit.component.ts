@@ -113,11 +113,17 @@ export class TourEditComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.tour = tour;
         this.waypoints = [...tour.waypoints];
-        
+
+        const difficultyMap: { [key: number]: string } = {
+          0: 'Easy',
+          1: 'Medium',
+          2: 'Hard'
+        };
+
         this.tourForm.patchValue({
           name: tour.name,
           description: tour.description,
-          difficulty: tour.difficulty,
+          difficulty: difficultyMap[tour.difficulty] || 'Easy',
           tags: tour.tags.join(', '),
           price: tour.price
         });
@@ -187,9 +193,7 @@ export class TourEditComponent implements OnInit, AfterViewInit, OnDestroy {
             <strong>${waypoint.name}</strong><br>
             ${waypoint.description}<br>
             <button onclick="window.dispatchEvent(new CustomEvent('editWaypoint', {detail: ${index}}))" 
-                    style="margin-top: 8px; margin-right: 5px;" class="btn btn-sm btn-primary">Edit</button>
-            <button onclick="window.dispatchEvent(new CustomEvent('deleteWaypoint', {detail: ${index}}))" 
-                    style="margin-top: 8px;" class="btn btn-sm btn-danger">Delete</button>
+                    style="margin-top: 8px;" class="btn btn-sm btn-primary">Edit</button>
           </div>
         `);
 
@@ -198,7 +202,6 @@ export class TourEditComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (this.waypoints.length > 1) {
       const latlngs = this.waypoints.map(w => [w.latitude, w.longitude] as [number, number]);
-      this.routeLine = L.polyline(latlngs, { color: '#007bff', weight: 3 }).addTo(this.map);
       this.map.fitBounds(latlngs);
     } else {
       this.map.setView([this.waypoints[0].latitude, this.waypoints[0].longitude], 14);
@@ -318,6 +321,30 @@ export class TourEditComponent implements OnInit, AfterViewInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
+  deleteWaypointAtIndex(index: number): void {
+    if (!confirm('Delete this waypoint?')) return;
+
+    if (this.isEditMode && this.tour) {
+      const waypoint = this.waypoints[index];
+      if (waypoint.id) {
+        this.tourService.deleteWaypoint(this.tour.id, waypoint.id).subscribe({
+          next: () => {
+            this.waypoints.splice(index, 1);
+            this.redrawMap();
+            this.cdr.detectChanges();
+          },
+          error: (err) => {
+            alert('Failed to delete waypoint');
+          }
+        });
+      }
+    } else {
+      this.waypoints.splice(index, 1);
+      this.redrawMap();
+      this.cdr.detectChanges();
+    }
+  }
+
   calculateDistance(): void {
     if (this.waypoints.length >= 2) {
       let total = 0;
@@ -375,33 +402,6 @@ export class TourEditComponent implements OnInit, AfterViewInit, OnDestroy {
     
     this.setWaypointLocation(waypoint.latitude, waypoint.longitude);
     this.cdr.detectChanges();
-  }
-
-  deleteWaypointAtIndex(index: number): void {
-    if (!confirm('Delete this waypoint?')) {
-      return;
-    }
-
-    const waypoint = this.waypoints[index];
-    
-    if (this.isEditMode && this.tour && waypoint.id) {
-      this.tourService.deleteWaypoint(this.tour.id, waypoint.id).subscribe({
-        next: () => {
-          this.waypoints.splice(index, 1);
-          this.redrawMap();
-          this.calculateDistance();
-          this.cdr.detectChanges();
-        },
-        error: (err) => {
-          alert('Failed to delete waypoint');
-        }
-      });
-    } else {
-      this.waypoints.splice(index, 1);
-      this.redrawMap();
-      this.calculateDistance();
-      this.cdr.detectChanges();
-    }
   }
 
   onSubmit(): void {
