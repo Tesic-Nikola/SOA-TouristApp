@@ -20,6 +20,7 @@ export class TourDetailComponent implements OnInit, AfterViewInit, OnDestroy {
   error = '';
   map: L.Map | null = null;
   isAuthor = false;
+  isInCart = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -42,6 +43,14 @@ export class TourDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
+    if (this.currentUser?.role === 0) {
+      this.tourService.getCart().subscribe({
+        next: (cart) => {
+          this.isInCart = cart.tourIds.includes(tourId);
+          this.cdr.detectChanges();
+        }
+      });
+    }
     this.loadTour(tourId);
   }
 
@@ -145,22 +154,17 @@ export class TourDetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
   addToCart(): void {
     if (!this.tour) return;
-    
-    if (!this.currentUser) {
-      this.router.navigate(['/login']);
-      return;
-    }
 
     this.tourService.addToCart(this.tour.id).subscribe({
       next: () => {
-        alert('Tour added to cart!');
+        this.isInCart = true;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         alert('Failed to add tour to cart');
       }
     });
   }
-
   goToCart(): void {
     this.router.navigate(['/cart']);
   }

@@ -21,6 +21,8 @@ import { ToursComponent } from './components/tours/tours.component';
 import { TourDetailComponent } from './components/tour-detail/tour-detail.component';
 import { MyToursComponent } from './components/my-tours/my-tours.component';
 import { TourEditComponent } from './components/tour-edit/tour-edit.component';
+import { CartComponent } from './components/cart/cart.component';
+import { MyPurchasesComponent } from './components/my-purchases/my-purchases.component';
 import { FormsModule } from '@angular/forms';
 
 @NgModule({
@@ -40,7 +42,9 @@ import { FormsModule } from '@angular/forms';
     ToursComponent,
     TourDetailComponent,
     MyToursComponent,
-    TourEditComponent
+    TourEditComponent,
+    CartComponent,
+    MyPurchasesComponent
   ],
   imports: [
     BrowserModule,

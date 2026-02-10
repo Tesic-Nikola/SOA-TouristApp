@@ -103,10 +103,18 @@
             <div class="mt-4" *ngIf="currentUser?.role === 0">
               <button 
                 class="btn btn-primary w-100 mb-2"
-                *ngIf="!tour.isPurchased"
+                *ngIf="!tour.isPurchased && !isInCart"
                 (click)="addToCart()">
                 <i class="bi bi-cart-plus"></i> Add to Cart
               </button>
+              
+              <button 
+                class="btn btn-outline-primary w-100 mb-2"
+                *ngIf="!tour.isPurchased && isInCart"
+                routerLink="/cart">
+                <i class="bi bi-cart-check"></i> Go to Cart
+              </button>
+              
               <button 
                 class="btn btn-success w-100"
                 *ngIf="tour.isPurchased">

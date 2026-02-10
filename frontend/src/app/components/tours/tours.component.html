@@ -123,16 +123,6 @@
             </span>
           </div>
         </div>
-
-        <div class="card-footer bg-transparent" *ngIf="currentUser?.role === 0">
-          <button 
-            class="btn btn-sm w-100"
-            [ngClass]="tour.isPurchased ? 'btn-outline-primary' : 'btn-primary'"
-            (click)="addToCart(tour, $event)">
-            <i [ngClass]="tour.isPurchased ? 'bi bi-eye' : 'bi bi-cart-plus'"></i>
-            {{ tour.isPurchased ? 'View Details' : 'Add to Cart' }}
-          </button>
-        </div>
       </div>
     </div>
   </div>

@@ -23,6 +23,11 @@
         </a>
       </li>
       <li class="nav-item" *ngIf="currentUser?.role === 0">
+        <a class="nav-link" routerLink="/purchases" routerLinkActive="active">
+          <i class="bi bi-bag-check"></i> My Purchases
+        </a>
+      </li>
+      <li class="nav-item" *ngIf="currentUser?.role === 0">
         <a class="nav-link" routerLink="/position" routerLinkActive="active">Position Simulator</a>
       </li>
     </ul>

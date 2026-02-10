@@ -1,0 +1,120 @@
+<div class="container mt-4">
+  <h2 class="mb-4">
+    <i class="bi bi-cart"></i> Shopping Cart
+  </h2>
+
+  <!-- Success Message -->
+  <div *ngIf="showSuccess" class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="bi bi-check-circle"></i> <strong>Success!</strong> Item added to cart.
+    <button type="button" class="btn-close" (click)="showSuccess = false"></button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="alert alert-danger">
+    <i class="bi bi-exclamation-triangle"></i> {{ error }}
+  </div>
+
+  <!-- Empty Cart -->
+  <div *ngIf="!loading && !error && cartTours.length === 0" class="text-center py-5">
+    <i class="bi bi-cart-x" style="font-size: 4rem; color: #ccc;"></i>
+    <h4 class="mt-3">Your cart is empty</h4>
+    <p class="text-muted">Browse tours and add them to your cart to get started!</p>
+    <button class="btn btn-primary mt-3" (click)="continueShopping()">
+      <i class="bi bi-compass"></i> Explore Tours
+    </button>
+  </div>
+
+  <!-- Cart Items -->
+  <div *ngIf="!loading && !error && cartTours.length > 0">
+    <div class="row">
+      <!-- Cart Items List -->
+      <div class="col-lg-8">
+        <div class="card mb-3" *ngFor="let tour of cartTours">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <!-- Tour Image -->
+              <div class="col-md-3">
+                <div class="tour-thumbnail">
+                  <img 
+                    [src]="tour.waypoints[0]?.imagePath || 'assets/default-tour.jpg'" 
+                    [alt]="tour.name"
+                    class="img-fluid rounded"
+                    style="width: 100%; height: 150px; object-fit: cover;">
+                </div>
+              </div>
+
+              <!-- Tour Details -->
+              <div class="col-md-6">
+                <h5 class="mb-2">{{ tour.name }}</h5>
+                <p class="text-muted mb-2 small">{{ tour.description | slice:0:100 }}{{ tour.description.length > 100 ? '...' : '' }}</p>
+                
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                  <span class="badge" [ngClass]="getDifficultyBadgeClass(tour.difficulty)">
+                    {{ getDifficultyLabel(tour.difficulty) }}
+                  </span>
+                  <span class="badge bg-light text-dark" *ngIf="tour.lengthKm">
+                    <i class="bi bi-signpost-2"></i> {{ tour.lengthKm }} km
+                  </span>
+                  <span class="badge bg-light text-dark" *ngIf="tour.waypoints.length">
+                    <i class="bi bi-geo-alt"></i> {{ tour.waypoints.length }} waypoint{{ tour.waypoints.length !== 1 ? 's' : '' }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Price & Actions -->
+              <div class="col-md-3 text-end">
+                <h4 class="text-primary mb-3">
+                  <span *ngIf="tour.price > 0">${{ tour.price }}</span>
+                  <span *ngIf="tour.price === 0" class="text-success">Free</span>
+                </h4>
+                <button 
+                  class="btn btn-outline-danger btn-sm w-100"
+                  (click)="removeFromCart(tour.id)">
+                  <i class="bi bi-trash"></i> Remove
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cart Summary -->
+      <div class="col-lg-4">
+        <div class="card sticky-top" style="top: 20px;">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Cart Summary</h5>
+          </div>
+          <div class="card-body">
+            <div class="d-flex justify-content-between mb-2">
+              <span>Items:</span>
+              <strong>{{ cartTours.length }}</strong>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between mb-3">
+              <h5 class="mb-0">Total:</h5>
+              <h5 class="mb-0 text-primary">${{ getTotalPrice() }}</h5>
+            </div>
+            <button 
+              class="btn btn-primary w-100 mb-2"
+              (click)="checkout()"
+              [disabled]="loading">
+              <i class="bi bi-credit-card"></i> Proceed to Checkout
+            </button>
+            <button 
+              class="btn btn-outline-secondary w-100"
+              (click)="continueShopping()">
+              <i class="bi bi-arrow-left"></i> Continue Shopping
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

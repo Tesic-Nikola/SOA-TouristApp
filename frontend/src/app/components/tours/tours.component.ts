@@ -100,29 +100,6 @@ export class ToursComponent implements OnInit {
     this.router.navigate(['/tours', tourId]);
   }
 
-  addToCart(tour: Tour, event: Event): void {
-    event.stopPropagation();
-    
-    if (!this.currentUser) {
-      this.router.navigate(['/login']);
-      return;
-    }
-
-    if (tour.isPurchased) {
-      this.router.navigate(['/tours', tour.id]);
-      return;
-    }
-
-    this.tourService.addToCart(tour.id).subscribe({
-      next: () => {
-        alert('Tour added to cart!');
-      },
-      error: (err) => {
-        alert('Failed to add tour to cart');
-      }
-    });
-  }
-
   getDifficultyBadgeClass(difficulty: number): string {
     switch (difficulty) {
       case 0: return 'bg-success';

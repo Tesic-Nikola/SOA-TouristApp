@@ -15,6 +15,8 @@ import { ToursComponent } from './components/tours/tours.component';
 import { TourDetailComponent } from './components/tour-detail/tour-detail.component';
 import { MyToursComponent } from './components/my-tours/my-tours.component';
 import { TourEditComponent } from './components/tour-edit/tour-edit.component';
+import { CartComponent } from './components/cart/cart.component';
+import { MyPurchasesComponent } from './components/my-purchases/my-purchases.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -31,7 +33,9 @@ const routes: Routes = [
   { path: 'tours/create', component: TourEditComponent, canActivate: [roleGuard([1])] }, // Guide only
   { path: 'tours/:id', component: TourDetailComponent },
   { path: 'tours/:id/edit', component: TourEditComponent, canActivate: [roleGuard([1])] }, // Guide only
-  { path: 'my-tours', component: MyToursComponent, canActivate: [roleGuard([1])] } // Guide only
+  { path: 'my-tours', component: MyToursComponent, canActivate: [roleGuard([1])] }, // Guide only
+  { path: 'cart', component: CartComponent, canActivate: [roleGuard([0])] }, // Tourist only
+  { path: 'purchases', component: MyPurchasesComponent, canActivate: [roleGuard([0])] } // Tourist only
 ];
 
 @NgModule({
