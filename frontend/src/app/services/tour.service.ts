@@ -4,7 +4,8 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { 
   Tour, 
-  CreateTourRequest, 
+  CreateTourRequest,
+  UpdateTourRequest,
   Waypoint, 
   ShoppingCart, 
   Purchase, 
@@ -36,8 +37,20 @@ export class TourService {
     return this.http.post<Tour>(this.apiUrl, request);
   }
 
+  updateTour(id: string, request: UpdateTourRequest): Observable<Tour> {
+    return this.http.put<Tour>(`${this.apiUrl}/${id}`, request);
+  }
+
+  deleteTour(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
   addWaypoint(tourId: string, waypoint: Waypoint): Observable<Waypoint> {
     return this.http.post<Waypoint>(`${this.apiUrl}/${tourId}/waypoints`, waypoint);
+  }
+
+  updateWaypoint(tourId: string, waypointId: string, waypoint: Waypoint): Observable<Waypoint> {
+    return this.http.put<Waypoint>(`${this.apiUrl}/${tourId}/waypoints/${waypointId}`, waypoint);
   }
 
   deleteWaypoint(tourId: string, waypointId: string): Observable<void> {

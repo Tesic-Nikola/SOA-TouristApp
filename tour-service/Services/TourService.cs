@@ -45,10 +45,25 @@ public class TourService
         var tour = await GetTourByIdAsync(tourId);
         if (tour == null) throw new Exception("Tour not found");
 
-        // Generate ID for waypoint
         waypoint.Id = ObjectId.GenerateNewId().ToString();
-
         tour.Waypoints.Add(waypoint);
+        await UpdateTourAsync(tourId, tour);
+    }
+
+    public async Task UpdateWaypointAsync(string tourId, string waypointId, Waypoint updatedWaypoint)
+    {
+        var tour = await GetTourByIdAsync(tourId);
+        if (tour == null) throw new Exception("Tour not found");
+
+        var waypoint = tour.Waypoints.FirstOrDefault(w => w.Id == waypointId);
+        if (waypoint == null) throw new Exception("Waypoint not found");
+
+        waypoint.Name = updatedWaypoint.Name;
+        waypoint.Description = updatedWaypoint.Description;
+        waypoint.Latitude = updatedWaypoint.Latitude;
+        waypoint.Longitude = updatedWaypoint.Longitude;
+        waypoint.ImagePath = updatedWaypoint.ImagePath;
+
         await UpdateTourAsync(tourId, tour);
     }
 

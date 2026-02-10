@@ -3,9 +3,12 @@ export interface Tour {
   authorId: string;
   name: string;
   description: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
+  difficulty: number; // 0=Easy, 1=Medium, 2=Hard
   tags: string[];
   waypoints: Waypoint[];
+  price: number;
+  lengthKm?: number;
+  isPurchased: boolean;
 }
 
 export interface Waypoint {
@@ -20,8 +23,16 @@ export interface Waypoint {
 export interface CreateTourRequest {
   name: string;
   description: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
+  difficulty: string; // "Easy", "Medium", "Hard"
   tags?: string[];
+}
+
+export interface UpdateTourRequest {
+  name?: string;
+  description?: string;
+  difficulty?: string; // "Easy", "Medium", "Hard"
+  tags?: string[];
+  price?: number;
 }
 
 export interface ShoppingCart {

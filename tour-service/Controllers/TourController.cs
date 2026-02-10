@@ -42,14 +42,29 @@ public class TourController : ControllerBase
         };
 
         await _tourService.CreateTourAsync(tour);
-        return CreatedAtAction(nameof(GetTour), new { id = tour.Id }, new TourResponse(tour));
+
+        // For create, isPurchased is always false (can't purchase your own tour)
+        return CreatedAtAction(nameof(GetTour), new { id = tour.Id }, new TourResponse(tour, false));
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAllTours()
     {
         var tours = await _tourService.GetAllToursAsync();
-        return Ok(tours.Select(t => new TourResponse(t)));
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        var responses = new List<TourResponse>();
+        foreach (var tour in tours)
+        {
+            bool isPurchased = false;
+            if (!string.IsNullOrEmpty(userId))
+            {
+                isPurchased = await _purchaseService.HasPurchasedAsync(userId, tour.Id);
+            }
+            responses.Add(new TourResponse(tour, isPurchased));
+        }
+
+        return Ok(responses);
     }
 
     [HttpGet("{id}")]
@@ -57,14 +72,72 @@ public class TourController : ControllerBase
     {
         var tour = await _tourService.GetTourByIdAsync(id);
         if (tour == null) return NotFound();
-        return Ok(new TourResponse(tour));
+
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        bool isPurchased = false;
+        if (!string.IsNullOrEmpty(userId))
+        {
+            isPurchased = await _purchaseService.HasPurchasedAsync(userId, tour.Id);
+        }
+
+        return Ok(new TourResponse(tour, isPurchased));
     }
 
     [HttpGet("author/{authorId}")]
     public async Task<IActionResult> GetToursByAuthor(string authorId)
     {
         var tours = await _tourService.GetToursByAuthorAsync(authorId);
-        return Ok(tours.Select(t => new TourResponse(t)));
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        var responses = new List<TourResponse>();
+        foreach (var tour in tours)
+        {
+            bool isPurchased = false;
+            if (!string.IsNullOrEmpty(userId))
+            {
+                isPurchased = await _purchaseService.HasPurchasedAsync(userId, tour.Id);
+            }
+            responses.Add(new TourResponse(tour, isPurchased));
+        }
+
+        return Ok(responses);
+    }
+
+    [HttpPut("{id}")]
+    [Authorize(Roles = "Guide")]
+    public async Task<IActionResult> UpdateTour(string id, [FromBody] UpdateTourRequest request)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var tour = await _tourService.GetTourByIdAsync(id);
+
+        if (tour == null) return NotFound("Tour not found");
+        if (tour.AuthorId != userId) return StatusCode(403, "Only the tour author can update");
+
+        if (request.Name != null) tour.Name = request.Name;
+        if (request.Description != null) tour.Description = request.Description;
+        if (request.Difficulty != null && Enum.TryParse<TourDifficulty>(request.Difficulty, true, out var difficulty))
+        {
+            tour.Difficulty = difficulty;
+        }
+        if (request.Tags != null) tour.Tags = request.Tags;
+        if (request.Price.HasValue) tour.Price = request.Price.Value;
+
+        await _tourService.UpdateTourAsync(id, tour);
+        return Ok(new TourResponse(tour, false));
+    }
+
+    [HttpDelete("{id}")]
+    [Authorize(Roles = "Guide")]
+    public async Task<IActionResult> DeleteTour(string id)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var tour = await _tourService.GetTourByIdAsync(id);
+
+        if (tour == null) return NotFound("Tour not found");
+        if (tour.AuthorId != userId) return StatusCode(403, "Only the tour author can delete");
+
+        await _tourService.DeleteTourAsync(id);
+        return Ok(new { message = "Tour deleted" });
     }
 
     // Functionality 11 - Add waypoint to tour
@@ -82,7 +155,20 @@ public class TourController : ControllerBase
         return Ok(waypoint);
     }
 
-    // Delete waypoint from tour
+    [HttpPut("{tourId}/waypoints/{waypointId}")]
+    [Authorize(Roles = "Guide")]
+    public async Task<IActionResult> UpdateWaypoint(string tourId, string waypointId, [FromBody] Waypoint waypoint)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var tour = await _tourService.GetTourByIdAsync(tourId);
+
+        if (tour == null) return NotFound("Tour not found");
+        if (tour.AuthorId != userId) return StatusCode(403, "Only the tour author can update waypoints");
+
+        await _tourService.UpdateWaypointAsync(tourId, waypointId, waypoint);
+        return Ok(waypoint);
+    }
+
     [HttpDelete("{tourId}/waypoints/{waypointId}")]
     [Authorize(Roles = "Guide")]
     public async Task<IActionResult> DeleteWaypoint(string tourId, string waypointId)
@@ -225,29 +311,22 @@ public class TourController : ControllerBase
         return Ok(executions.Select(e => new TourExecutionResponse(e)));
     }
 }
+
 public record CreateTourRequest(string Name, string Description, TourDifficulty Difficulty, List<string>? Tags);
+public record UpdateTourRequest(string? Name, string? Description, string? Difficulty, List<string>? Tags, decimal? Price);
 public record SetPositionRequest(double Latitude, double Longitude);
 
-public record TourResponse(string Id, string AuthorId, string Name, string Description,
-    TourDifficulty Difficulty, List<string> Tags, List<Waypoint> Waypoints)
+public record TourResponse(string Id, string AuthorId, string Name, string Description, TourDifficulty Difficulty, List<string> Tags, List<Waypoint> Waypoints, decimal Price, double? LengthKm, bool IsPurchased)
 {
-    public TourResponse(Tour tour) : this(tour.Id, tour.AuthorId, tour.Name, tour.Description,
-        tour.Difficulty, tour.Tags, tour.Waypoints)
-    { }
+    public TourResponse(Tour tour, bool isPurchased) : this(tour.Id, tour.AuthorId, tour.Name, tour.Description, tour.Difficulty, tour.Tags, tour.Waypoints, tour.Price, tour.LengthKm, isPurchased) { }
 }
 
 public record PurchaseResponse(string Id, string TouristId, string TourId, string Token, DateTime PurchasedAt)
 {
-    public PurchaseResponse(Purchase purchase) : this(purchase.Id, purchase.TouristId,
-        purchase.TourId, purchase.Token, purchase.PurchasedAt)
-    { }
+    public PurchaseResponse(Purchase purchase) : this(purchase.Id, purchase.TouristId, purchase.TourId, purchase.Token, purchase.PurchasedAt) { }
 }
 
-public record TourExecutionResponse(string Id, string TouristId, string TourId, DateTime StartedAt,
-    DateTime? CompletedAt, DateTime? AbandonedAt, DateTime LastActivity, List<WaypointCompletion> CompletedWaypoints)
+public record TourExecutionResponse(string Id, string TouristId, string TourId, DateTime StartedAt, DateTime? CompletedAt, DateTime? AbandonedAt, DateTime LastActivity, List<WaypointCompletion> CompletedWaypoints)
 {
-    public TourExecutionResponse(TourExecution execution) : this(execution.Id, execution.TouristId,
-        execution.TourId, execution.StartedAt, execution.CompletedAt, execution.AbandonedAt,
-        execution.LastActivity, execution.CompletedWaypoints)
-    { }
+    public TourExecutionResponse(TourExecution execution) : this(execution.Id, execution.TouristId, execution.TourId, execution.StartedAt, execution.CompletedAt, execution.AbandonedAt, execution.LastActivity, execution.CompletedWaypoints) { }
 }

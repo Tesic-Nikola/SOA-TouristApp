@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using tour_service.Services;
 using tour_service.GrpcServices;
 
@@ -35,7 +37,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
-builder.Services.AddControllers();
+
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    });
+
 builder.Services.AddOpenApi();
 
 builder.WebHost.ConfigureKestrel(options =>
@@ -47,6 +56,7 @@ builder.WebHost.ConfigureKestrel(options =>
 // Add gRPC
 builder.Services.AddGrpc();
 
+// Register services
 builder.Services.AddSingleton<tour_service.Services.TourService>();
 builder.Services.AddSingleton<PositionService>();
 builder.Services.AddSingleton<PurchaseService>();

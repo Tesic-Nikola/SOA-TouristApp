@@ -1,0 +1,181 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <button class="btn btn-secondary" (click)="goBack()">
+      <i class="bi bi-arrow-left"></i> Back to Tours
+    </button>
+    <button class="btn btn-primary" *ngIf="isAuthor" (click)="editTour()">
+      <i class="bi bi-pencil"></i> Edit Tour
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <div *ngIf="tour && !loading">
+    <div class="row">
+      <!-- Tour Info Column -->
+      <div class="col-md-5">
+        <div class="card mb-3">
+          <div class="card-body">
+            <!-- Badges -->
+            <div class="mb-3">
+              <span class="badge me-2" [ngClass]="getDifficultyBadgeClass(tour.difficulty)">
+                {{ getDifficultyLabel(tour.difficulty) }}
+              </span>
+              <span class="badge bg-primary" *ngIf="tour.isPurchased">
+                <i class="bi bi-check-circle"></i> Purchased
+              </span>
+            </div>
+
+            <h2>{{ tour.name }}</h2>
+
+            <!-- Author info -->
+            <div class="author-link mb-3" *ngIf="author" (click)="viewAuthorProfile()">
+              <div class="d-flex align-items-center">
+                <div *ngIf="!author.profileImagePath" 
+                     class="rounded-circle d-flex align-items-center justify-content-center bg-secondary me-2"
+                     style="width: 40px; height: 40px; min-width: 40px;">
+                  <i class="bi bi-person-fill text-white" style="font-size: 20px;"></i>
+                </div>
+                <img 
+                  *ngIf="author.profileImagePath"
+                  [src]="author.profileImagePath" 
+                  alt="Author" 
+                  class="rounded-circle me-2"
+                  style="width: 40px; height: 40px; object-fit: cover;">
+                <div>
+                  <strong>{{ author.username }}</strong>
+                  <div class="text-muted small">Tour Guide</div>
+                </div>
+              </div>
+            </div>
+
+            <p class="card-text">{{ tour.description }}</p>
+
+            <!-- Tour Stats -->
+            <div class="tour-stats">
+              <div class="stat-item" *ngIf="tour.lengthKm">
+                <i class="bi bi-signpost-2"></i>
+                <div>
+                  <strong>Length</strong>
+                  <div>{{ tour.lengthKm }} km</div>
+                </div>
+              </div>
+              <div class="stat-item">
+                <i class="bi bi-geo-alt-fill"></i>
+                <div>
+                  <strong>Waypoints</strong>
+                  <div>{{ tour.waypoints.length }} location{{ tour.waypoints.length !== 1 ? 's' : '' }}</div>
+                </div>
+              </div>
+              <div class="stat-item" *ngIf="tour.price > 0">
+                <i class="bi bi-cash"></i>
+                <div>
+                  <strong>Price</strong>
+                  <div>${{ tour.price }}</div>
+                </div>
+              </div>
+              <div class="stat-item" *ngIf="tour.price === 0">
+                <i class="bi bi-gift"></i>
+                <div>
+                  <strong>Price</strong>
+                  <div>Free</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tags -->
+            <div class="tags mt-3" *ngIf="tour.tags.length > 0">
+              <h6>Tags</h6>
+              <span class="badge bg-light text-dark me-1 mb-1" *ngFor="let tag of tour.tags">
+                {{ tag }}
+              </span>
+            </div>
+
+            <!-- Purchase/Cart Actions -->
+            <div class="mt-4" *ngIf="currentUser?.role === 0">
+              <button 
+                class="btn btn-primary w-100 mb-2"
+                *ngIf="!tour.isPurchased"
+                (click)="addToCart()">
+                <i class="bi bi-cart-plus"></i> Add to Cart
+              </button>
+              <button 
+                class="btn btn-success w-100"
+                *ngIf="tour.isPurchased">
+                <i class="bi bi-check-circle"></i> Already Purchased
+              </button>
+            </div>
+
+            <!-- Lock message for non-purchased tourists -->
+            <div class="alert alert-warning mt-3" *ngIf="currentUser?.role === 0 && !tour.isPurchased && !canSeeAllWaypoints()">
+              <i class="bi bi-lock-fill"></i> 
+              <strong>Purchase this tour</strong> to see all waypoints and start the experience.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Map Column -->
+      <div class="col-md-7">
+        <div class="card">
+          <div class="card-body p-0">
+            <div id="tour-map" class="tour-map"></div>
+            <div class="map-info p-3" *ngIf="!canSeeAllWaypoints()">
+              <i class="bi bi-info-circle"></i>
+              <span class="ms-2">Showing starting location only. Purchase tour to see full route.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Waypoints List -->
+        <div class="card mt-3" *ngIf="canSeeAllWaypoints()">
+          <div class="card-body">
+            <h5 class="card-title">Waypoints</h5>
+            <div class="waypoint-list">
+              <div class="waypoint-item" *ngFor="let waypoint of tour.waypoints; let i = index">
+                <div class="waypoint-number">{{ i + 1 }}</div>
+                <div class="waypoint-content">
+                  <h6>{{ waypoint.name }}</h6>
+                  <p class="text-muted mb-0">{{ waypoint.description }}</p>
+                  <small class="text-muted">
+                    <i class="bi bi-geo"></i> 
+                    {{ waypoint.latitude.toFixed(6) }}, {{ waypoint.longitude.toFixed(6) }}
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Limited waypoint view for non-purchasers -->
+        <div class="card mt-3" *ngIf="!canSeeAllWaypoints() && tour.waypoints.length > 0">
+          <div class="card-body">
+            <h5 class="card-title">Starting Point</h5>
+            <div class="waypoint-item">
+              <div class="waypoint-number">1</div>
+              <div class="waypoint-content">
+                <h6>{{ tour.waypoints[0].name }}</h6>
+                <p class="text-muted mb-0">{{ tour.waypoints[0].description }}</p>
+                <small class="text-muted">
+                  <i class="bi bi-geo"></i> 
+                  {{ tour.waypoints[0].latitude.toFixed(6) }}, {{ tour.waypoints[0].longitude.toFixed(6) }}
+                </small>
+              </div>
+            </div>
+            <div class="alert alert-light mt-3 mb-0">
+              <i class="bi bi-lock"></i> {{ tour.waypoints.length - 1 }} more waypoint{{ tour.waypoints.length - 1 !== 1 ? 's' : '' }} hidden. Purchase to unlock.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

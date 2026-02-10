@@ -17,6 +17,11 @@ import { BlogDetailComponent } from './components/blog-detail/blog-detail.compon
 import { BlogCreateComponent } from './components/blog-create/blog-create.component';
 import { RecommendationsComponent } from './components/recommendations/recommendations.component';
 import { PositionSimulatorComponent } from './components/position-simulator/position-simulator.component';
+import { ToursComponent } from './components/tours/tours.component';
+import { TourDetailComponent } from './components/tour-detail/tour-detail.component';
+import { MyToursComponent } from './components/my-tours/my-tours.component';
+import { TourEditComponent } from './components/tour-edit/tour-edit.component';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -31,12 +36,17 @@ import { PositionSimulatorComponent } from './components/position-simulator/posi
     BlogDetailComponent,
     BlogCreateComponent,
     RecommendationsComponent,
-    PositionSimulatorComponent
+    PositionSimulatorComponent,
+    ToursComponent,
+    TourDetailComponent,
+    MyToursComponent,
+    TourEditComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    FormsModule
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),

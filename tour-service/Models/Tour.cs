@@ -15,6 +15,8 @@ public class Tour
     public TourDifficulty Difficulty { get; set; }
     public List<string> Tags { get; set; } = new();
     public List<Waypoint> Waypoints { get; set; } = new();
+    public decimal Price { get; set; } = 0;
+    public double? LengthKm { get; set; }
 }
 
 public enum TourDifficulty

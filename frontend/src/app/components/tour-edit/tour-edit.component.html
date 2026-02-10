@@ -1,0 +1,257 @@
+<div class="container-fluid mt-4">
+  <div class="row">
+    <!-- Left Column: Tour Form -->
+    <div class="col-md-4">
+      <div class="card sticky-top" style="top: 20px;">
+        <div class="card-body">
+          <h3 class="card-title">
+            {{ isEditMode ? 'Edit Tour' : 'Create New Tour' }}
+          </h3>
+
+          <div *ngIf="success" class="alert alert-success">
+            {{ success }}
+          </div>
+
+          <div *ngIf="error" class="alert alert-danger">
+            {{ error }}
+          </div>
+
+          <form [formGroup]="tourForm" (ngSubmit)="onSubmit()">
+            <div class="mb-3">
+              <label for="name" class="form-label">Tour Name *</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="name" 
+                formControlName="name"
+                [class.is-invalid]="tourForm.get('name')?.invalid && tourForm.get('name')?.touched">
+              <div class="invalid-feedback">
+                Tour name must be at least 3 characters
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="description" class="form-label">Description *</label>
+              <textarea 
+                class="form-control" 
+                id="description" 
+                rows="3"
+                formControlName="description"
+                [class.is-invalid]="tourForm.get('description')?.invalid && tourForm.get('description')?.touched"></textarea>
+              <div class="invalid-feedback">
+                Description must be at least 10 characters
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="difficulty" class="form-label">Difficulty *</label>
+              <select 
+                class="form-select" 
+                id="difficulty" 
+                formControlName="difficulty">
+                <option value="Easy">Easy</option>
+                <option value="Medium">Medium</option>
+                <option value="Hard">Hard</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label for="price" class="form-label">Price ($) *</label>
+              <input 
+                type="number" 
+                class="form-control" 
+                id="price" 
+                formControlName="price"
+                min="0"
+                step="0.01">
+              <small class="text-muted">Set to 0 for free tours</small>
+            </div>
+
+            <div class="mb-3">
+              <label for="tags" class="form-label">Tags</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="tags" 
+                formControlName="tags"
+                placeholder="nature, hiking, history (comma separated)">
+              <small class="text-muted">Separate tags with commas</small>
+            </div>
+
+            <div class="tour-stats-summary" *ngIf="tour">
+              <div class="stat-item">
+                <i class="bi bi-geo-alt"></i>
+                <span>{{ waypoints.length }} waypoint{{ waypoints.length !== 1 ? 's' : '' }}</span>
+              </div>
+              <div class="stat-item" *ngIf="tour.lengthKm">
+                <i class="bi bi-signpost-2"></i>
+                <span>{{ tour.lengthKm }} km</span>
+              </div>
+            </div>
+
+            <div class="alert alert-warning" *ngIf="waypoints.length < 2">
+              <i class="bi bi-exclamation-triangle"></i>
+              <small>Add at least 2 waypoints to publish this tour</small>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary" [disabled]="loading || tourForm.invalid">
+                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+                {{ loading ? 'Saving...' : (isEditMode ? 'Update' : 'Create') }}
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="cancel()">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Map & Waypoints -->
+    <div class="col-md-8">
+      <!-- Map Card -->
+      <div class="card mb-3">
+        <div class="card-header bg-primary text-white">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <i class="bi bi-map"></i> Tour Map
+            </h5>
+            <button 
+              class="btn btn-sm btn-light"
+              (click)="startAddingWaypoint()"
+              [disabled]="isAddingWaypoint || !canAddMoreWaypoints()">
+              <i class="bi bi-plus-circle"></i> Add Waypoint
+            </button>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div id="edit-map" class="edit-map"></div>
+          <div class="map-instructions p-3" *ngIf="isAddingWaypoint">
+            <i class="bi bi-cursor"></i>
+            <strong>Click anywhere on the map</strong> to set the waypoint location
+          </div>
+        </div>
+      </div>
+
+      <!-- Waypoint Form -->
+      <div class="card mb-3" *ngIf="showWaypointForm">
+        <div class="card-header bg-success text-white">
+          <h5 class="mb-0">
+            <i class="bi bi-geo-alt"></i> 
+            {{ editingWaypointIndex !== null ? 'Edit Waypoint' : 'New Waypoint' }}
+          </h5>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="waypointForm" (ngSubmit)="saveWaypoint()">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="wpName" class="form-label">Name *</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="wpName" 
+                  formControlName="name"
+                  [class.is-invalid]="waypointForm.get('name')?.invalid && waypointForm.get('name')?.touched">
+                <div class="invalid-feedback">
+                  Name is required (min 3 characters)
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="wpImage" class="form-label">Image URL</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="wpImage" 
+                  formControlName="imagePath"
+                  placeholder="https://example.com/image.jpg">
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="wpDescription" class="form-label">Description *</label>
+              <textarea 
+                class="form-control" 
+                id="wpDescription" 
+                rows="2"
+                formControlName="description"
+                [class.is-invalid]="waypointForm.get('description')?.invalid && waypointForm.get('description')?.touched"></textarea>
+              <div class="invalid-feedback">
+                Description is required
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Latitude</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  formControlName="latitude"
+                  readonly>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Longitude</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  formControlName="longitude"
+                  readonly>
+              </div>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button 
+                type="submit" 
+                class="btn btn-success"
+                [disabled]="waypointForm.invalid || (!waypointForm.get('latitude')?.value && editingWaypointIndex === null)">
+                <i class="bi bi-check"></i> Save Waypoint
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="cancelWaypointEdit()">
+                <i class="bi bi-x"></i> Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Waypoints List -->
+      <div class="card" *ngIf="waypoints.length > 0">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="bi bi-list-ol"></i> Waypoints ({{ waypoints.length }})
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="waypoint-list">
+            <div class="waypoint-item" *ngFor="let waypoint of waypoints; let i = index">
+              <div class="waypoint-number">{{ i + 1 }}</div>
+              <div class="waypoint-content">
+                <h6>{{ waypoint.name }}</h6>
+                <p class="text-muted mb-1">{{ waypoint.description }}</p>
+                <small class="text-muted">
+                  <i class="bi bi-geo"></i> 
+                  {{ waypoint.latitude.toFixed(6) }}, {{ waypoint.longitude.toFixed(6) }}
+                </small>
+                <div class="waypoint-actions">
+                  <button class="btn btn-sm btn-outline-primary" (click)="editWaypoint(i)">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger" (click)="deleteWaypointAtIndex(i)">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-info mt-3" *ngIf="waypoints.length === 0">
+        <i class="bi bi-info-circle"></i>
+        No waypoints added yet. Click "Add Waypoint" and then click on the map to place waypoints.
+      </div>
+    </div>
+  </div>
+</div>
