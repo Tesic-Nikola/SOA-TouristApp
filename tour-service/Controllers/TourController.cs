@@ -297,7 +297,8 @@ public class TourController : ControllerBase
     public async Task<IActionResult> AbandonTour(string executionId)
     {
         await _executionService.AbandonTourAsync(executionId);
-        return Ok(new { message = "Tour abandoned" });
+        var execution = await _executionService.CheckProgressAsync(executionId);
+        return Ok(new TourExecutionResponse(execution!));
     }
 
     [HttpGet("executions")]

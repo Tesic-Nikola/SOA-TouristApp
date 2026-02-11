@@ -1,0 +1,199 @@
+<div class="container-fluid mt-3">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2">Starting tour...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="alert alert-danger">
+    <i class="bi bi-exclamation-triangle"></i> {{ error }}
+  </div>
+
+  <!-- Completed State -->
+  <div *ngIf="isCompleted && execution && tour" class="text-center py-5">
+    <div class="completion-card mx-auto text-center">
+      <i class="bi bi-trophy-fill text-success" style="font-size: 4rem;"></i>
+      <h2 class="mt-3">Tour Completed! 🎉</h2>
+      <p class="text-muted">You have successfully completed {{ tour.name }}</p>
+      <div class="completion-details">
+        <p><strong>Started:</strong> {{ formatDateTime(execution.startedAt) }}</p>
+        <p><strong>Completed:</strong> {{ formatDateTime(execution.completedAt!) }}</p>
+        <p><strong>Waypoints Visited:</strong> {{ execution.completedWaypoints.length }} / {{ tour.waypoints.length }}</p>
+      </div>
+      <div class="mt-4">
+        <button class="btn btn-primary me-2" routerLink="/purchases">
+          <i class="bi bi-arrow-left"></i> Back to My Purchases
+        </button>
+        <button class="btn btn-warning" (click)="restartTour()">
+          <i class="bi bi-arrow-clockwise"></i> Replay Tour
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Abandoned State -->
+  <div *ngIf="isAbandoned && execution && tour" class="text-center py-5">
+    <div class="abandoned-card mx-auto">
+      <i class="bi bi-x-circle-fill text-danger" style="font-size: 4rem;"></i>
+      <h2 class="mt-3">Tour Abandoned</h2>
+      <p class="text-muted">You have left the tour</p>
+      <div class="completion-details">
+        <p><strong>Started:</strong> {{ formatDateTime(execution.startedAt) }}</p>
+        <p><strong>Abandoned:</strong> {{ formatDateTime(execution.abandonedAt!) }}</p>
+        <p><strong>Waypoints Visited:</strong> {{ execution.completedWaypoints.length }} / {{ tour.waypoints.length }}</p>
+      </div>
+      <div class="mt-4">
+        <button class="btn btn-primary me-2" routerLink="/purchases">
+          <i class="bi bi-arrow-left"></i> Back to My Purchases
+        </button>
+        <button class="btn btn-danger" (click)="restartTour()">
+          <i class="bi bi-arrow-clockwise"></i> Try Again
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Tour Execution -->
+  <div *ngIf="!loading && !error && !isCompleted && !isAbandoned && tour && execution">
+    <div class="row">
+      <!-- Left Sidebar -->
+      <div class="col-lg-3">
+        <div class="card mb-3">
+          <div class="card-body">
+            <h5 class="card-title">{{ tour.name }}</h5>
+            <p class="text-muted small">{{ tour.description }}</p>
+            
+            <!-- Progress Bar -->
+            <div class="mb-3">
+              <div class="d-flex justify-content-between mb-1">
+                <small><strong>Progress</strong></small>
+                <small>{{ execution.completedWaypoints.length }} / {{ tour.waypoints.length }}</small>
+              </div>
+              <div class="progress">
+                <div 
+                  class="progress-bar bg-success" 
+                  role="progressbar" 
+                  [style.width.%]="getProgressPercentage()">
+                  {{ getProgressPercentage() }}%
+                </div>
+              </div>
+            </div>
+
+            <!-- Current Position -->
+            <div *ngIf="currentPosition" class="mb-3">
+              <small class="text-muted">
+                <i class="bi bi-geo-alt"></i> Current Position:<br>
+                Lat: {{ currentPosition.latitude.toFixed(6) }}<br>
+                Lng: {{ currentPosition.longitude.toFixed(6) }}
+              </small>
+            </div>
+
+            <!-- Actions -->
+            <div class="d-grid gap-2">
+              <button 
+                class="btn btn-primary btn-sm"
+                (click)="togglePositionOverlay()">
+                <i class="bi bi-crosshair"></i> {{ showPositionOverlay ? 'Close Position Update' : 'Update Position' }}
+              </button>
+              <button 
+                class="btn btn-danger btn-sm"
+                (click)="abandonTour()">
+                <i class="bi bi-x-circle"></i> Abandon Tour
+              </button>
+            </div>
+
+            <!-- Session Info -->
+            <hr>
+            <small class="text-muted">
+              <strong>Started:</strong><br>
+              {{ formatDateTime(execution.startedAt) }}<br>
+              <strong>Last Check:</strong><br>
+              {{ formatDateTime(execution.lastActivity) }}
+              <ng-container *ngIf="getLastCompletedWaypoint() as lastWaypoint">
+                <br><br>
+                <strong>Last Waypoint:</strong><br>
+                {{ lastWaypoint.name }}<br>
+                {{ formatDateTime(lastWaypoint.time) }}
+              </ng-container>
+            </small>
+          </div>
+        </div>
+
+        <!-- Waypoints List -->
+        <div class="card">
+          <div class="card-header">
+            <strong>Waypoints</strong>
+          </div>
+          <div class="list-group list-group-flush">
+            <div 
+              *ngFor="let waypoint of tour.waypoints; let i = index"
+              class="list-group-item"
+              [ngClass]="{'list-group-item-success': isWaypointCompleted(waypoint.id)}">
+              <div class="d-flex align-items-center">
+                <span class="badge bg-primary me-2">{{ i + 1 }}</span>
+                <div class="flex-grow-1">
+                  <strong>{{ waypoint.name }}</strong>
+                  <br>
+                  <small class="text-muted">{{ waypoint.description }}</small>
+                </div>
+                <i 
+                  *ngIf="isWaypointCompleted(waypoint.id)"
+                  class="bi bi-check-circle-fill text-success"
+                  style="font-size: 1.5rem;"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Map -->
+      <div class="col-lg-9">
+        <div class="card position-relative">
+          <!-- Position Update Overlay -->
+          <div *ngIf="showPositionOverlay" class="position-overlay">
+            <div class="overlay-header">
+              <h5><i class="bi bi-geo-alt-fill"></i> Click on map to update your position</h5>
+              <button class="btn btn-sm btn-light" (click)="togglePositionOverlay()">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </div>
+            <div *ngIf="positionUpdating" class="position-updating">
+              <div class="spinner-border text-primary" role="status"></div>
+              <p>Updating position...</p>
+            </div>
+          </div>
+
+          <div class="card-body p-0">
+            <div id="execution-map" class="execution-map" 
+                 [ngClass]="{'map-clickable': showPositionOverlay}"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Waypoint Image Preview Modal -->
+  <div *ngIf="selectedWaypoint" class="waypoint-preview-overlay" (click)="closeWaypointPreview()">
+    <div class="waypoint-preview-card" (click)="$event.stopPropagation()">
+      <button class="btn-close-preview" (click)="closeWaypointPreview()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+      <img 
+        *ngIf="selectedWaypoint.imagePath" 
+        [src]="selectedWaypoint.imagePath" 
+        [alt]="selectedWaypoint.name"
+        class="waypoint-preview-image">
+      <div *ngIf="!selectedWaypoint.imagePath" class="no-image-placeholder">
+        <i class="bi bi-image"></i>
+        <p>No image available</p>
+      </div>
+      <div class="waypoint-preview-info">
+        <h4>{{ selectedWaypoint.name }}</h4>
+        <p>{{ selectedWaypoint.description }}</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ChangeDetectorRef, Output, EventEmitter } from '@angular/core';
 import { TourService } from '../../services/tour.service';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
@@ -16,6 +16,7 @@ export class PositionSimulatorComponent implements OnInit, AfterViewInit {
   currentPosition: { latitude: number, longitude: number } | null = null;
   loading = false;
   message = '';
+  @Output() positionUpdated = new EventEmitter<void>();
 
   constructor(
     private tourService: TourService,
@@ -93,6 +94,7 @@ export class PositionSimulatorComponent implements OnInit, AfterViewInit {
         this.message = `Position updated: ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
         this.loading = false;
         this.cdr.detectChanges();
+        this.positionUpdated.emit();
       },
       error: () => {
         this.message = 'Failed to update position';

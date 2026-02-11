@@ -62,7 +62,7 @@
                   {{ getDifficultyLabel(item.tour.difficulty) }}
                 </span>
                 <span class="badge bg-light text-dark me-1" *ngIf="item.tour.lengthKm">
-                  <i class="bi bi-signpost-2"></i> {{ item.tour.lengthKm }} km
+                  <i class="bi bi-arrows-move"></i> {{ item.tour.lengthKm }} km
                 </span>
                 <span class="badge bg-light text-dark" *ngIf="item.tour.waypoints.length">
                   <i class="bi bi-geo-alt"></i> {{ item.tour.waypoints.length }} waypoints
@@ -85,13 +85,18 @@
                     {{ item.showFullToken ? 'Hide' : 'View Full Token' }}
                   </button>
                 </small>
+                <br *ngIf="getSessionStatus(item)">
+                <small *ngIf="getSessionStatus(item)" class="text-muted">
+                  <i class="bi bi-clock-history"></i> {{ getSessionStatus(item) }}
+                </small>
               </div>
 
               <div class="d-grid gap-2">
                 <button 
-                  class="btn btn-primary"
+                  class="btn"
+                  [ngClass]="getButtonClass(item)"
                   (click)="startTour(item.tour.id)">
-                  <i class="bi bi-play-circle"></i> Start Tour
+                  <i [ngClass]="getButtonIcon(item)"></i> {{ getButtonText(item) }}
                 </button>
                 <button 
                   class="btn btn-outline-secondary"

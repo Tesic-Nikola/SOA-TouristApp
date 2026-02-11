@@ -1,7 +1,8 @@
 import { NgModule, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { CommonModule } from '@angular/common';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing-module';
 import { App } from './app';
@@ -23,7 +24,7 @@ import { MyToursComponent } from './components/my-tours/my-tours.component';
 import { TourEditComponent } from './components/tour-edit/tour-edit.component';
 import { CartComponent } from './components/cart/cart.component';
 import { MyPurchasesComponent } from './components/my-purchases/my-purchases.component';
-import { FormsModule } from '@angular/forms';
+import { TourExecutionComponent } from './components/tour-execution/tour-execution.component';
 
 @NgModule({
   declarations: [
@@ -44,10 +45,12 @@ import { FormsModule } from '@angular/forms';
     MyToursComponent,
     TourEditComponent,
     CartComponent,
-    MyPurchasesComponent
+    MyPurchasesComponent,
+    TourExecutionComponent
   ],
   imports: [
     BrowserModule,
+    CommonModule,
     AppRoutingModule,
     ReactiveFormsModule,
     FormsModule

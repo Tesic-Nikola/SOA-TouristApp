@@ -60,22 +60,29 @@ public class TourExecutionService
         var position = await _positionService.GetPositionAsync(execution.TouristId);
         if (position == null) return execution;
 
-        // Check each waypoint for proximity (within 100 meters)
-        foreach (var waypoint in tour.Waypoints)
+        // Check waypoints IN ORDER
+        for (int i = 0; i < tour.Waypoints.Count; i++)
         {
+            var waypoint = tour.Waypoints[i];
+
             if (execution.CompletedWaypoints.Any(c => c.WaypointId == waypoint.Id))
-                continue; // Already completed
+                continue;
+
+            // Must complete previous first
+            if (i > 0 && !execution.CompletedWaypoints.Any(c => c.WaypointId == tour.Waypoints[i - 1].Id))
+                break;
 
             var distance = CalculateDistance(position.Latitude, position.Longitude,
                 waypoint.Latitude, waypoint.Longitude);
 
-            if (distance <= 0.1) // 100 meters = 0.1 km
+            if (distance <= 0.05) // 50 meters
             {
                 execution.CompletedWaypoints.Add(new WaypointCompletion
                 {
                     WaypointId = waypoint.Id,
                     CompletedAt = DateTime.UtcNow
                 });
+                break;
             }
         }
 
@@ -97,6 +104,7 @@ public class TourExecutionService
         if (execution == null) return;
 
         execution.AbandonedAt = DateTime.UtcNow;
+        execution.LastActivity = DateTime.UtcNow;
         await _executions.ReplaceOneAsync(e => e.Id == executionId, execution);
     }
 
