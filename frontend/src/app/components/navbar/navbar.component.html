@@ -1,13 +1,19 @@
-<nav class="navbar navbar-expand navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
   <div class="container-fluid">
-    <a class="navbar-brand" routerLink="/">Explorer</a>
+    <a class="navbar-brand fw-bold" routerLink="/">
+      <i class="bi bi-compass"></i> Explorer
+    </a>
     
     <ul class="navbar-nav me-auto">
       <li class="nav-item" *ngIf="currentUser">
-        <a class="nav-link" routerLink="/tours" routerLinkActive="active">Tours</a>
+        <a class="nav-link" routerLink="/tours" routerLinkActive="active">
+          <i class="bi bi-map"></i> Tours
+        </a>
       </li>
       <li class="nav-item" *ngIf="currentUser">
-        <a class="nav-link" routerLink="/blogs" routerLinkActive="active">Blogs</a>
+        <a class="nav-link" routerLink="/blogs" routerLinkActive="active">
+          <i class="bi bi-journal-text"></i> Blogs
+        </a>
       </li>
       <li class="nav-item" *ngIf="currentUser">
         <a class="nav-link" routerLink="/recommendations" routerLinkActive="active">
@@ -15,20 +21,24 @@
         </a>
       </li>
       <li class="nav-item" *ngIf="currentUser?.role === 1">
-        <a class="nav-link" routerLink="/my-tours" routerLinkActive="active">My Tours</a>
+        <a class="nav-link" routerLink="/my-tours" routerLinkActive="active">
+          <i class="bi bi-collection"></i> My Tours
+        </a>
       </li>
       <li class="nav-item" *ngIf="currentUser?.role === 0">
         <a class="nav-link" routerLink="/cart" routerLinkActive="active">
-          <i class="bi bi-cart"></i> Cart
+          <i class="bi bi-cart3"></i> Cart
         </a>
       </li>
       <li class="nav-item" *ngIf="currentUser?.role === 0">
         <a class="nav-link" routerLink="/purchases" routerLinkActive="active">
-          <i class="bi bi-bag-check"></i> My Purchases
+          <i class="bi bi-bag-check"></i> Purchases
         </a>
       </li>
       <li class="nav-item" *ngIf="currentUser?.role === 0">
-        <a class="nav-link" routerLink="/position" routerLinkActive="active">Position Simulator</a>
+        <a class="nav-link" routerLink="/position" routerLinkActive="active">
+          <i class="bi bi-geo-alt"></i> Position
+        </a>
       </li>
     </ul>
 
@@ -37,16 +47,20 @@
         <a class="nav-link" routerLink="/login">Login</a>
       </li>
       <li class="nav-item" *ngIf="!currentUser">
-        <a class="nav-link" routerLink="/register">Register</a>
+        <a class="nav-link btn btn-outline-light btn-sm ms-2" routerLink="/register">Register</a>
       </li>
       <li class="nav-item dropdown" *ngIf="currentUser">
-        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-          {{ currentUser.username }}
+        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+          <i class="bi bi-person-circle me-1"></i> {{ currentUser.username }}
         </a>
         <ul class="dropdown-menu dropdown-menu-end">
-          <li><a class="dropdown-item" [routerLink]="['/profile', currentUser.id]">My Profile</a></li>
+          <li><a class="dropdown-item" [routerLink]="['/profile', currentUser.id]">
+            <i class="bi bi-person"></i> My Profile
+          </a></li>
           <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item" href="#" (click)="logout(); $event.preventDefault()">Logout</a></li>
+          <li><a class="dropdown-item text-danger" href="#" (click)="logout(); $event.preventDefault()">
+            <i class="bi bi-box-arrow-right"></i> Logout
+          </a></li>
         </ul>
       </li>
     </ul>

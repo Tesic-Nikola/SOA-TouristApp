@@ -23,14 +23,14 @@ export interface Waypoint {
 export interface CreateTourRequest {
   name: string;
   description: string;
-  difficulty: string; // "Easy", "Medium", "Hard"
+  difficulty: number; // 0=Easy, 1=Medium, 2=Hard
   tags?: string[];
 }
 
 export interface UpdateTourRequest {
   name?: string;
   description?: string;
-  difficulty?: string; // "Easy", "Medium", "Hard"
+  difficulty?: number; // 0=Easy, 1=Medium, 2=Hard
   tags?: string[];
   price?: number;
 }

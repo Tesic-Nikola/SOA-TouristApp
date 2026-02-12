@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TourService } from '../../services/tour.service';
 import { AuthService } from '../../services/auth.service';
 import { Tour, Waypoint } from '../../models/tour.model';
+import { switchMap } from 'rxjs/operators';
 import * as L from 'leaflet';
 
 @Component({
@@ -445,13 +446,6 @@ export class TourEditComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       });
     } else {
-      const createRequest = {
-        name: this.tourForm.value.name,
-        description: this.tourForm.value.description,
-        difficulty: this.tourForm.value.difficulty,
-        tags: tags
-      };
-
       // Validate minimum waypoints for new tours
       if (this.waypoints.length < 2) {
         this.error = 'Please add at least 2 waypoints before creating the tour';
@@ -460,15 +454,40 @@ export class TourEditComponent implements OnInit, AfterViewInit, OnDestroy {
         return;
       }
 
+      const createRequest = {
+        name: this.tourForm.value.name,
+        description: this.tourForm.value.description,
+        difficulty: this.getDifficultyNumber(this.tourForm.value.difficulty),
+        tags: tags
+      };
+
       this.tourService.createTour(createRequest).subscribe({
         next: (created) => {
-          this.success = 'Tour created! Redirecting to edit...';
-          this.loading = false;
-          this.cdr.detectChanges();
+          // Add waypoints sequentially
+          let waypointChain = this.tourService.addWaypoint(created.id, this.waypoints[0]);
           
-          setTimeout(() => {
-            this.router.navigate(['/tours', created.id, 'edit']);
-          }, 1000);
+          for (let i = 1; i < this.waypoints.length; i++) {
+            waypointChain = waypointChain.pipe(
+              switchMap(() => this.tourService.addWaypoint(created.id, this.waypoints[i]))
+            );
+          }
+          
+          waypointChain.subscribe({
+            next: () => {
+              this.success = 'Tour created successfully!';
+              this.loading = false;
+              this.cdr.detectChanges();
+              setTimeout(() => {
+                this.router.navigate(['/my-tours']);
+              }, 1000);
+            },
+            error: (err) => {
+              console.error('Failed to add waypoints:', err);
+              this.error = 'Tour created but failed to add waypoints';
+              this.loading = false;
+              this.cdr.detectChanges();
+            }
+          });
         },
         error: (err) => {
           console.error('Create error:', err);
@@ -486,5 +505,13 @@ export class TourEditComponent implements OnInit, AfterViewInit, OnDestroy {
 
   canAddMoreWaypoints(): boolean {
     return this.waypoints.length < this.MAX_WAYPOINTS;
+  }
+  private getDifficultyNumber(difficulty: string): number {
+    switch (difficulty) {
+      case 'Easy': return 0;
+      case 'Medium': return 1;
+      case 'Hard': return 2;
+      default: return 0;
+    }
   }
 }

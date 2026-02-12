@@ -169,32 +169,31 @@ export class TourExecutionComponent implements OnInit, AfterViewInit, OnDestroy 
     this.cdr.detectChanges();
   }
 
-  setPosition(lat: number, lng: number): void {
-    this.positionUpdating = true;
-    this.cdr.detectChanges();
+    setPosition(lat: number, lng: number): void {
+        this.positionUpdating = true;
+        this.cdr.detectChanges();
 
-    this.tourService.setPosition(lat, lng).subscribe({
-      next: () => {
-        this.currentPosition = { 
-          id: '', 
-          touristId: '', 
-          latitude: lat, 
-          longitude: lng, 
-          updatedAt: new Date() 
-        };
-        this.updatePositionMarker(lat, lng);
-        this.positionUpdating = false;
-        this.showPositionOverlay = false;
-        this.checkProgressNow();
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('Failed to set position:', err);
-        this.positionUpdating = false;
-        this.cdr.detectChanges();
-      }
-    });
-  }
+        this.tourService.setPosition(lat, lng).subscribe({
+            next: () => {
+            this.currentPosition = { 
+                id: '', 
+                touristId: '', 
+                latitude: lat, 
+                longitude: lng, 
+                updatedAt: new Date() 
+            };
+            this.updatePositionMarker(lat, lng);
+            this.positionUpdating = false;
+            this.showPositionOverlay = false;
+            this.cdr.detectChanges();
+            },
+            error: (err) => {
+            console.error('Failed to set position:', err);
+            this.positionUpdating = false;
+            this.cdr.detectChanges();
+            }
+        });
+    }
 
   startAutoCheck(): void {
     this.checkProgressNow();
@@ -302,7 +301,9 @@ export class TourExecutionComponent implements OnInit, AfterViewInit, OnDestroy 
     if (!confirm('Are you sure you want to abandon this tour?')) return;
 
     this.tourService.abandonTour(this.execution.id).subscribe({
-      next: () => {
+      next: (response: any) => {
+        // Backend returns updated execution, just use it directly
+        this.execution!.abandonedAt = new Date();
         this.isAbandoned = true;
         clearInterval(this.checkInterval);
         this.cdr.detectChanges();

@@ -93,8 +93,8 @@ export class TourService {
     return this.http.post<TourExecution>(`${this.apiUrl}/execute/${executionId}/check`, {});
   }
 
-  abandonTour(executionId: string): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/execute/${executionId}/abandon`, {});
+  abandonTour(executionId: string): Observable<TourExecution> {
+    return this.http.post<TourExecution>(`${this.apiUrl}/execute/${executionId}/abandon`, {});
   }
 
   getExecutions(): Observable<TourExecution[]> {

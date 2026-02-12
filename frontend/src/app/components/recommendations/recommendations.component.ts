@@ -38,23 +38,29 @@ export class RecommendationsComponent implements OnInit {
 
     this.followerService.getRecommendations().subscribe({
       next: (data) => {
-        this.recommendations = data.recommendations;
+        this.recommendations = data.recommendations || [];
         
-        // Load user details for each recommendation
-        this.recommendations.forEach(rec => {
-          this.authService.getUser(rec.userId).subscribe({
-            next: (user) => {
-              this.users.set(rec.userId, user);
-              this.cdr.detectChanges();
-            }
+        // Only load user details if we have recommendations
+        if (this.recommendations && this.recommendations.length > 0) {
+          this.recommendations.forEach(rec => {
+            this.authService.getUser(rec.userId).subscribe({
+              next: (user) => {
+                this.users.set(rec.userId, user);
+                this.cdr.detectChanges();
+              },
+              error: (err) => {
+                console.error('Failed to load user:', err);
+              }
+            });
           });
-        });
+        }
 
         this.loading = false;
         this.cdr.detectChanges();
       },
       error: (err) => {
-        this.error = 'Failed to load recommendations';
+        console.error('Failed to load recommendations:', err);
+        this.recommendations = [];
         this.loading = false;
         this.cdr.detectChanges();
       }

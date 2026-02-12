@@ -1,17 +1,112 @@
-<div class="container mt-5">
-  <div class="text-center">
-    <h1>Welcome to Explorer</h1>
-    <p class="lead" *ngIf="!currentUser">Discover and explore amazing tours around the world</p>
-    <p class="lead" *ngIf="currentUser">Welcome back, {{ currentUser.username }}!</p>
-    
-    <div class="mt-4" *ngIf="!currentUser">
-      <a routerLink="/login" class="btn btn-primary btn-lg me-2">Login</a>
-      <a routerLink="/register" class="btn btn-outline-primary btn-lg">Register</a>
+<div class="home-container">
+  <!-- Hero Section -->
+  <div class="hero-section text-center text-white">
+    <div class="container">
+      <h1 class="display-4 fw-bold mb-3" *ngIf="!currentUser">Welcome to Explorer</h1>
+      <h1 class="display-4 fw-bold mb-3" *ngIf="currentUser">Welcome back, {{ currentUser.username }}!</h1>
+      <p class="lead mb-4" *ngIf="!currentUser">Discover and explore amazing tours around the world</p>
+      <p class="lead mb-4" *ngIf="currentUser?.role === 0">Your next adventure awaits</p>
+      <p class="lead mb-4" *ngIf="currentUser?.role === 1">Manage your tours and inspire others</p>
+      
+      <div class="mt-4" *ngIf="!currentUser">
+        <a routerLink="/login" class="btn btn-light btn-lg me-3 px-5">
+          <i class="bi bi-box-arrow-in-right"></i> Login
+        </a>
+        <a routerLink="/register" class="btn btn-outline-light btn-lg px-5">
+          <i class="bi bi-person-plus"></i> Register
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tourist Home -->
+  <div class="container mt-5" *ngIf="currentUser?.role === 0">
+    <div class="row mb-4">
+      <div class="col-md-6 mb-4">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="bi bi-map-fill"></i>
+          </div>
+          <h3>Explore Tours</h3>
+          <p>Discover curated tours from expert guides around the world</p>
+          <a routerLink="/tours" class="btn btn-primary">
+            Browse Tours <i class="bi bi-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+      
+      <div class="col-md-6 mb-4">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="bi bi-journal-text"></i>
+          </div>
+          <h3>Read Blogs</h3>
+          <p>Get inspired by travel stories and experiences from our community</p>
+          <a routerLink="/blogs" class="btn btn-primary">
+            View Blogs <i class="bi bi-arrow-right"></i>
+          </a>
+        </div>
+      </div>
     </div>
 
-    <div class="mt-4" *ngIf="currentUser">
-      <a routerLink="/tours" class="btn btn-primary btn-lg me-2">Browse Tours</a>
-      <a routerLink="/blogs" class="btn btn-outline-primary btn-lg">Read Blogs</a>
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <div class="stat-card">
+          <i class="bi bi-geo-alt-fill"></i>
+          <h4>Purchase Tours</h4>
+          <p>Buy access to premium guided tours</p>
+        </div>
+      </div>
+      <div class="col-md-4 mb-3">
+        <div class="stat-card">
+          <i class="bi bi-people-fill"></i>
+          <h4>Follow Guides</h4>
+          <p>Connect with expert tour guides</p>
+        </div>
+      </div>
+      <div class="col-md-4 mb-3">
+        <div class="stat-card">
+          <i class="bi bi-compass-fill"></i>
+          <h4>Track Progress</h4>
+          <p>Complete waypoints and tours</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Guide Home -->
+  <div class="container mt-5" *ngIf="currentUser?.role === 1">
+    <div class="row mb-4">
+      <div class="col-md-12 mb-4">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="bi bi-collection-fill"></i>
+          </div>
+          <h3>Your Tours</h3>
+          <p>Create, manage, and share your guided tours with travelers worldwide</p>
+          <a routerLink="/my-tours" class="btn btn-primary btn-lg">
+            <i class="bi bi-plus-circle"></i> Manage Tours
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <div class="stat-card">
+          <i class="bi bi-pencil-square"></i>
+          <h4>Share Stories</h4>
+          <p>Write blogs about your experiences</p>
+          <a routerLink="/blogs/create" class="btn btn-sm btn-outline-primary mt-2">Create Blog</a>
+        </div>
+      </div>
+      <div class="col-md-6 mb-3">
+        <div class="stat-card">
+          <i class="bi bi-graph-up"></i>
+          <h4>Grow Your Audience</h4>
+          <p>Build your following and reach more travelers</p>
+        </div>
+      </div>
     </div>
   </div>
 </div>
